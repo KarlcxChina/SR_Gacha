@@ -1,0 +1,14 @@
+# 忽略 .idea 文件夹
+.idea/
+
+# 忽略 build 文件夹
+build/
+
+# 忽略 dist 文件夹
+dist/
+
+# 忽略 venv 文件夹
+venv/
+
+# 忽略 .spec 文件
+*.spec

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>崩铁抽数寄算模拟器</title>
+    <link rel="icon" type="image/x-icon" href="https://sr.mihoyo.com/favicon-mi.ico">
+    <style>
+        body {
+            background: url('https://bing.img.run/rand.php') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 610px;
+        }
+
+        .container h1 {
+            margin-bottom: 20px;
+        }
+
+        .container input {
+            padding: 10px;
+            width: calc(100% - 24px);
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .button-group button {
+            padding: 10px;
+            width: 48%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .button-group button:hover {
+            background-color: #ddd;
+        }
+
+        .visualization {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: left;
+            max-width: 100%;
+            word-break: break-word;
+            background-color: rgba(240, 240, 240, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            align-content: flex-start;
+            align-items: center;
+            flex-direction: row;
+        }
+
+        .visualization span {
+            margin: 5px;
+            padding: 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #f0f0f0;
+            height: 40px;
+            width: 95px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submit-button {
+            margin-top: 20px;
+        }
+
+        .submit-button button {
+            padding: 10px 20px;
+            width: 400px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .submit-button button:hover {
+            background-color: #ddd;
+        }
+
+        .result-container {
+            display: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 610px;
+        }
+
+        .result-container h1 {
+            margin-bottom: 20px;
+        }
+
+        .result-visualization {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: left;
+            max-width: 100%;
+            word-break: break-word;
+            background-color: rgba(240, 240, 240, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            align-content: flex-start;
+            align-items: center;
+        }
+
+        .result-visualization div {
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #f0f0f0;
+            width: 94%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            margin-top: 20px;
+        }
+
+        .back-button button {
+            padding: 10px 20px;
+            width: 400px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .back-button button:hover {
+            background-color: #ddd;
+        }
+
+        .container input[type="checkbox"] {
+            display: none;
+        }
+
+        .container input[type="checkbox"] + label {
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+            display: inline-block;
+            color: #333;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .container input[type="checkbox"] + label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ccc;
+            border-radius: 3px;
+            background-color: #fff;
+        }
+
+        .container input[type="checkbox"]:checked + label::before {
+            background-color: #007BFF;
+            border-color: #007BFF;
+        }
+
+        .container input[type="checkbox"]:checked + label::after {
+            content: '✔';
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #fff;
+        }
+
+        .footer {
+            font-size: 12px;;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="main-container">
+    <h1>崩铁抽数寄算模拟器</h1>
+    <input type="text" id="ticket" placeholder="请输入你拥有的抽数，请自行预估未来抽数">
+    <input type="checkbox" id="cL55"><label for="cL55"> 角色池是否歪小保底 </label>
+    &emsp;&emsp;
+    <input type="checkbox" id="lL55"><label for="lL55"> 光锥池是否歪小保底 </label>
+    <div class="visualization" id="visualization"></div>
+    <div class="button-group">
+        <button onclick="handleClick('角色')">角色</button>
+        <button onclick="handleClick('光锥')">光锥</button>
+    </div>
+    <div class="button-group">
+        <button onclick="undo()">撤销</button>
+        <button onclick="undoAll()">撤销全部</button>
+    </div>
+</div>
+<div class="submit-button" id="submitter">
+    <button onclick="submitForm()">提交寄算</button>
+</div>
+
+<div class="result-container" id="result-container">
+    <h1>模拟结果</h1>
+    <div class="result-visualization" id="result-visualization"></div>
+    <div class="back-button">
+        <button onclick="resetForm()">返回</button>
+    </div>
+</div>
+
+
+<script>
+    const A_LABEL = '角色';
+    const B_LABEL = '光锥';
+
+    let ligh = [];
+    let cara = [];
+    let lastButton = '';
+    let history = [];
+
+    function handleClick(button) {
+        if (button === A_LABEL) {
+            cara.push(1);
+            if (lastButton === A_LABEL) {
+                ligh.push(0);
+            }
+            lastButton = A_LABEL;
+        } else if (button === B_LABEL) {
+            ligh.push(1);
+            if (lastButton === B_LABEL) {
+                cara.push(0);
+            }
+            lastButton = B_LABEL;
+        }
+        history.push(button);
+        updateVisualization();
+    }
+
+    function undo() {
+        const lastAction = history.pop();
+        if (!lastAction) return;
+
+        if (lastAction === A_LABEL) {
+            cara.pop();
+            if (history[history.length - 1] === A_LABEL) {
+                ligh.pop();
+            }
+        } else if (lastAction === B_LABEL) {
+            ligh.pop();
+            if (history[history.length - 1] === B_LABEL) {
+                cara.pop();
+            }
+        }
+
+        lastButton = history[history.length - 1] || '';
+        updateVisualization();
+    }
+
+    function undoAll() {
+        ligh = [];
+        cara = [];
+        lastButton = '';
+        history = [];
+        updateVisualization();
+    }
+
+    function updateVisualization() {
+        const visualization = document.getElementById('visualization');
+        visualization.innerHTML = '';
+        history.forEach(action => {
+            const span = document.createElement('span');
+            span.textContent = action;
+            visualization.appendChild(span);
+        });
+    }
+
+    function submitForm() {
+        const ticket = document.getElementById('ticket').value;
+        lL55 = 0
+        if (document.getElementById('lL55').checked)
+            lL55 = 1
+        cL55 = 0
+        if (document.getElementById('cL55').checked)
+            cL55 = 1
+
+        // Ensure ligh and cara have the same length
+        while (ligh.length < cara.length) {
+            ligh.push(0);
+        }
+        while (cara.length < ligh.length) {
+            cara.push(0);
+        }
+
+        const data = {
+            ticket: ticket,
+            lL55: lL55,
+            cL55: cL55,
+            ligh: ligh.join(','),
+            cara: cara.join(',')
+        };
+
+        const submitter = document.getElementById('submitter');
+        alert('已经提交计算，请耐心等待。将会进行20万轮模拟，结果输出前请勿刷新页面重复提交！');
+        submitter.style.display = 'none';
+        fetch('/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+            })
+            .catch((error) => {
+                alert('Submission failed.');
+                console.error('Error:', error);
+            });
+    }
+
+    function displayResults(data) {
+        const mainContainer = document.getElementById('main-container');
+        const resultContainer = document.getElementById('result-container');
+        const resultVisualization = document.getElementById('result-visualization');
+
+        mainContainer.style.display = 'none';
+        resultContainer.style.display = 'block';
+
+        resultVisualization.innerHTML = '';
+        data.data.forEach(item => {
+            const div = document.createElement('div');
+            div.textContent = `${item.type} ${item.id}: ${item.percentage}`;
+            resultVisualization.appendChild(div);
+        });
+    }
+
+    function resetForm() {
+        const mainContainer = document.getElementById('main-container');
+        const submitter = document.getElementById('submitter');
+        const resultContainer = document.getElementById('result-container');
+
+        mainContainer.style.display = 'block';
+        submitter.style.display = 'block';
+        resultContainer.style.display = 'none';
+
+        document.getElementById('ticket').value = '';
+        undoAll();
+    }
+</script>
+<br><br>
+</body>
+<footer>
+    <a class="footer" href="https://haokawx.lot-ml.com/Product/Index/410994" target="_blank">四大运营商正规大流量电话卡 资费低至19元200G/月</a>
+</footer>
+</html>
